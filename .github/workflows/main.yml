@@ -27,10 +27,12 @@ jobs:
       - name: Build the project
         run: yarn build
 
-      # Listar arquivos no diretório build
-      - name: List files in build directory
-        run: ls -la build
-
+      # Verificar onde a pasta build foi criada
+      - name: Find the location of build folder
+        run: |
+          echo "Searching for the build folder..."
+          find . -type d -name "build"
+      
       # Decodificar a chave Base64
       - name: Decode GCP credentials from Base64
         run: echo "${{ secrets.GCP_KEYFILE_BASE64 }}" | base64 --decode > gcloud-credentials.json
@@ -39,7 +41,7 @@ jobs:
       - name: Deploy to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: './build/*'  # Caminho correto
+          path: './build/*'
           destination: 'gs://netflixclone111/'
           project_id: 'daniel-web-444219'
           gzip: true
@@ -47,6 +49,6 @@ jobs:
           parent: true
           concurrency: 100
           gcloudignore_path: .gcloudignore
-          process_gcloudignore: false  # Desabilitar o ignore para depuração
+          process_gcloudignore: false
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ./gcloud-credentials.json
