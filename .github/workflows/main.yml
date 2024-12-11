@@ -28,7 +28,7 @@ jobs:
           yarn build
 
       - name: Upload build artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Atualizado para v3
         with:
           name: build
           path: ./build
@@ -56,7 +56,7 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: daniel-web-444219
+          project_id: ${{ secrets.GCP_PROJECT_ID }}
 
       - name: Deploy to GCP
         run: |
