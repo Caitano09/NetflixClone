@@ -29,6 +29,12 @@ jobs:
       - name: Build Project
         run: yarn build
 
+      # List build directory contents (for debugging)
+      - name: List Build Directory
+        run: |
+          echo "Listing the contents of the build directory:"
+          ls -l ./build
+
   deploy:
     name: Deploy to Google Cloud Storage
     needs: build
@@ -51,6 +57,16 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y google-cloud-cli
+
+      # Check if build directory exists
+      - name: Check Build Directory
+        run: |
+          if [ ! -d "./build" ]; then
+            echo "Error: Build directory './build' does not exist."
+            exit 1
+          fi
+          echo "Build directory exists. Listing contents:"
+          ls -l ./build
 
       # Upload files to Google Cloud Storage using gsutil
       - name: Upload to GCS
