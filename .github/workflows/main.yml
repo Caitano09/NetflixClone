@@ -20,12 +20,12 @@ jobs:
           node-version: 23
 
       # Instalar dependências
-      - name: Install dependencies
-        run: yarn install
+    #   - name: Install dependencies
+    #     run: yarn install
 
       # Construir o projeto
-      - name: Build the project
-        run: yarn build
+    #   - name: Build the project
+    #     run: yarn build
 
       # Verificar onde a pasta build foi criada
       - name: Find the location of build folder
@@ -41,7 +41,7 @@ jobs:
       - name: Deploy to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: './build/*'
+          path: './'
           destination: 'gs://netflixclone111/'
           project_id: 'daniel-web-444219'
           gzip: true
