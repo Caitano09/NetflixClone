@@ -48,7 +48,7 @@ jobs:
       - name: Deploy to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: 'build/**'
+          path: 'build/*'
           destination: 'gs://netflixclone111/'
           project_id: 'daniel-web-444219'
         env:
