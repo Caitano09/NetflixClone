@@ -1,54 +1,64 @@
-name: CI/CD Pipeline
+name: Deploy to GCP
 
 on:
   push:
     branches:
-      - master
+      - master  # Alterado para "master" conforme o Bitbucket Pipeline
 
 jobs:
-  build-and-deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
-    steps:
-      # Checkout do código
-      - name: Checkout code
-        uses: actions/checkout@v4
 
-      # Configurar Node.js
-      - name: Setup Node.js
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: 23
 
-      # Instalar dependências
-    #   - name: Install dependencies
-    #     run: yarn install
-
-      # Construir o projeto
-    #   - name: Build the project
-    #     run: yarn build
-
-      # Verificar onde a pasta build foi criada
-      - name: Find the location of build folder
+      - name: Install dependencies
         run: |
-          echo "Searching for the build folder..."
-          find . -type d -name "build"
-      
-      # Decodificar a chave Base64
-      - name: Decode GCP credentials from Base64
-        run: echo "${{ secrets.GCP_KEYFILE }}" | base64 --decode > gcloud-credentials.json
+          yarn install
 
-      # Fazer upload para o Google Cloud Storage
-      - name: Deploy to Google Cloud Storage
-        uses: google-github-actions/upload-cloud-storage@v2
+      - name: Build project
+        run: |
+          yarn build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v2
         with:
-          path: './'
-          destination: 'gs://netflixclone111'
-          project_id: 'daniel-web-444219'
-          gzip: true
-          resumable: true
-          parent: true
-          concurrency: 100
-          gcloudignore_path: .gcloudignore
-          process_gcloudignore: false
-        env:
-          GOOGLE_APPLICATION_CREDENTIALS: ./gcloud-credentials.json
+          name: build
+          path: ./build
+
+  deploy:
+    name: Deploy
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: build
+          path: ./build
+
+      - name: Authenticate to GCP
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: "${{ secrets.GCP_KEYFILE }}"  # Usando a chave de autenticação do GCP
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: daniel-web-444219
+
+      - name: Deploy to GCP
+        run: |
+          gsutil -m rsync -r ./build/** gs://netflixclone111
+          gsutil iam ch allUsers:objectViewer gs://netflixclone111
