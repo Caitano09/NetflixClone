@@ -57,4 +57,4 @@ jobs:
       # Upload files to Google Cloud Storage using gsutil
       - name: Upload to GCS
         run: |
-          gsutil -m rsync -r ./build gs://${{ secrets.GCP_BUCKET }}
+          gsutil -m rsync -r /home/runner/work/NetflixClone/NetflixClone/build gs://${{ secrets.GCP_BUCKET }}
