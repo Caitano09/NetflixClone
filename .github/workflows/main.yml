@@ -46,9 +46,12 @@ jobs:
           credentials_json: ${{ secrets.GCP_KEYFILE }}
           project_id: ${{ secrets.GCP_PROJECT }}
 
-      # Upload files to Google Cloud Storage
-      - name: Upload to Google Cloud Storage
-        uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@main
-        with:
-          path: ./build/**       # Path to the files to upload
-          destination: gs://${{ secrets.GCP_BUCKET }}
+      # Install Google Cloud SDK
+      - name: Install Google Cloud SDK
+        run: |
+          sudo apt-get update && sudo apt-get install -y google-cloud-sdk
+
+      # Upload files to Google Cloud Storage using gsutil
+      - name: Upload to GCS
+        run: |
+          gsutil -m rsync -r ./build gs://${{ secrets.GCP_BUCKET }}
