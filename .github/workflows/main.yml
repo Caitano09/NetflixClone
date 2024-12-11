@@ -32,4 +32,4 @@ jobs:
           credentials_json: ${{ secrets.GCP_KEYFILE }}
           project_id: 'daniel-web-444219'
           bucket: 'netflixclone111'
-          source: './build/**'
+          path: './build/**'
