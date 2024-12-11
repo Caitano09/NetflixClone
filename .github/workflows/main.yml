@@ -7,16 +7,13 @@ on:
 
 jobs:
   build:
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
+    name: Install and Build
     runs-on: ubuntu-latest
 
     steps:
       # Checkout the repository
-      - id: 'checkout'
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
       # Set up Node.js
       - name: Set up Node.js
@@ -30,10 +27,14 @@ jobs:
 
       # Build the project
       - name: Build Project
-        run: |
-          yarn build
-          echo "The current working directory is: $(pwd)"
-          echo "The absolute path of the build directory is: $(pwd)/build"
+        run: yarn build
+
+      # Upload the build folder as an artifact
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: build
+          path: ./build
 
   deploy:
     name: Deploy to Google Cloud Storage
@@ -42,27 +43,26 @@ jobs:
 
     steps:
       # Checkout the repository
-      - id: 'checkout'
-        uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v3
 
-      # Authenticate to Google Cloud
-      - id: 'auth'
-        uses: google-github-actions/auth@v2
+      # Download the build artifact from the build job
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: build
+          path: ./build
+
+      # Authenticate with Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
         with:
           credentials_json: ${{ secrets.GCP_KEYFILE }}
           project_id: ${{ secrets.GCP_PROJECT }}
 
-      # Upload files to Google Cloud Storage using upload-cloud-storage
-      - id: 'upload-folder'
-        uses: google-github-actions/upload-cloud-storage@v2
+      # Upload files to Google Cloud Storage using the uploaded build folder
+      - name: Upload to Google Cloud Storage
+        uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@main
         with:
-          path: './build/'  # Usando caminho relativo
-          destination: '${{ secrets.GCP_BUCKET }}'
-          universe: googleapis.com
-          gzip: true
-          resumable: true
-          parent: true
-          concurrency: 100
-          gcloudignore_path: .gcloudignore
-          process_gcloudignore: true
-
+          path: ./build/**  # Path to the files to upload
+          destination: gs://${{ secrets.GCP_BUCKET }}
