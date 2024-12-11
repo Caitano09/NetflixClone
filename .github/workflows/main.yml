@@ -35,7 +35,7 @@ jobs:
       
       # Decodificar a chave Base64
       - name: Decode GCP credentials from Base64
-        run: echo "${{ secrets.GCP_KEYFILE_BASE64 }}" | base64 --decode > gcloud-credentials.json
+        run: echo "${{ secrets.GCP_KEYFILE }}" | base64 --decode > gcloud-credentials.json
 
       # Fazer upload para o Google Cloud Storage
       - name: Deploy to Google Cloud Storage
