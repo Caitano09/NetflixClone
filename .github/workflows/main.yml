@@ -1,0 +1,54 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Install and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 23
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: yarn install
+
+      # Build the project
+      - name: Build Project
+        run: yarn build
+
+  deploy:
+    name: Deploy to Google Cloud Storage
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout the repository
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      # Authenticate with Google Cloud
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
+        with:
+          credentials_json: ${{ secrets.GCP_KEYFILE }}
+          project_id: ${{ secrets.GCP_PROJECT }}
+
+      # Upload files to Google Cloud Storage
+      - name: Upload to Google Cloud Storage
+        uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@main
+        with:
+          path: ./build/**       # Path to the files to upload
+          destination: gs://${{ secrets.GCP_BUCKET }}

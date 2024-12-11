@@ -88,4 +88,5 @@ const getMovieInfo = async(movieId, typeMovie) =>{
     return info
 }
 
+// eslint-disable-next-line
 export default {getHomeList, getMovieInfo}

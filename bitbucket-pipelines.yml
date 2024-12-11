@@ -1,0 +1,26 @@
+# This is a sample build configuration for Docker.
+# Check our guides at https://confluence.atlassian.com/x/O1toN for more examples.
+# Only use spaces to indent your .yml configuration.
+# -----
+# You can specify a custom docker image from Docker Hub as your build environment.
+image: node:16-alpine
+
+pipelines:
+
+  branches:
+    master:
+      - step:
+          name: 'Install and build'
+          services:
+            - docker
+          script:
+            # Modify the commands below to build your repository.
+            # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
+            - yarn install
+            - yarn build
+            - pipe: atlassian/google-cloud-storage-deploy:1.2.0
+              variables:
+                KEY_FILE: $GCP_KEYFILE
+                PROJECT: $GCP_PROJECT
+                BUCKET: $GCP_BUCKET
+                SOURCE: '-r ./build/**'
