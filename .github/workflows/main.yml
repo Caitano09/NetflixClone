@@ -68,5 +68,21 @@ jobs:
       - name: Upload to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: ./build  # Upload the folder itself
-          destination: ${{ secrets.GCP_BUCKET }}
+          path: ./build  # Caminho para a pasta build
+          destination: gs://${{ secrets.GCP_BUCKET }}  # Certifique-se de que GCP_BUCKET está correto
+          universe: googleapis.com
+          gzip: true
+          resumable: true
+          parent: true
+          concurrency: 100
+          gcloudignore_path: .gcloudignore
+          process_gcloudignore: true
+        env:
+          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/NetflixClone/NetflixClone/gha-creds-f0da3e2dcedc1e93.json
+          GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/NetflixClone/NetflixClone/gha-creds-f0da3e2dcedc1e93.json
+          GOOGLE_GHA_CREDS_PATH: /home/runner/work/NetflixClone/NetflixClone/gha-creds-f0da3e2dcedc1e93.json
+          CLOUDSDK_CORE_PROJECT: ${{ secrets.GCP_PROJECT }}
+          CLOUDSDK_PROJECT: ${{ secrets.GCP_PROJECT }}
+          GCLOUD_PROJECT: ${{ secrets.GCP_PROJECT }}
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT }}
