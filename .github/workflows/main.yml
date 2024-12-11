@@ -62,7 +62,7 @@ jobs:
 
       # Upload files to Google Cloud Storage using the uploaded build folder
       - name: Upload to Google Cloud Storage
-        uses: GoogleCloudPlatform/github-actions/upload-cloud-storage@main
+        uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: ./build/**  # Path to the files to upload
           destination: gs://${{ secrets.GCP_BUCKET }}
