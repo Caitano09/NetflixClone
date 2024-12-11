@@ -3,7 +3,7 @@
 # Only use spaces to indent your .yml configuration.
 # -----
 # You can specify a custom docker image from Docker Hub as your build environment.
-image: node:16-alpine
+image: node:23-alpine
 
 pipelines:
 
@@ -20,7 +20,7 @@ pipelines:
             - yarn build
             - pipe: atlassian/google-cloud-storage-deploy:1.2.0
               variables:
-                KEY_FILE: $GCP_KEYFILE
-                PROJECT: $GCP_PROJECT
-                BUCKET: $GCP_BUCKET
+                KEY_FILE: $GCLOUD_API_KEYFILE
+                PROJECT: 'daniel-web-444219'
+                BUCKET: 'netflixclone111'
                 SOURCE: '-r ./build/**'

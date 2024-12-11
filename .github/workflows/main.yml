@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: CI Pipeline
 
 on:
   push:
@@ -7,82 +7,30 @@ on:
 
 jobs:
   build:
-    name: Install and Build
     runs-on: ubuntu-latest
+    container:
+      image: node:23-alpine
 
     steps:
-      # Checkout the repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
+      # Checkout do código-fonte
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-      # Set up Node.js
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 23
+      # Instalar dependências
+      - name: Install dependencies
+        run: |
+          yarn install
 
-      # Install dependencies
-      - name: Install Dependencies
-        run: yarn install
-
-      # Build the project
-      - name: Build Project
+      # Executar build
+      - name: Build project
         run: |
           yarn build
-          echo "The current working directory is: $(pwd)"
-          echo "The absolute path of the build directory is: $(pwd)/build"
-          ls -l ./build
 
-      # Upload the build folder as an artifact for the next job
-      - name: Upload build artifact
-        uses: actions/upload-artifact@v3
+      # Deploy para o Google Cloud Storage
+      - name: Deploy to Google Cloud Storage
+        uses: google-github-actions/upload-cloud-storage@v0
         with:
-          name: build
-          path: ./build
-
-  deploy:
-    name: Deploy to Google Cloud Storage
-    needs: build
-    runs-on: ubuntu-latest
-
-    steps:
-      # Checkout the repository
-      - name: Checkout Code
-        uses: actions/checkout@v3
-
-      # Authenticate with Google Cloud
-      - name: Authenticate to Google Cloud
-        uses: google-github-actions/auth@v1
-        with:
-          credentials_json: ${{ secrets.GCP_KEYFILE }}
-          project_id: ${{ secrets.GCP_PROJECT }}
-
-      # Download the build artifact from the build job
-      - name: Download Build Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: build
-          path: ./build
-
-      # Upload files to Google Cloud Storage using the downloaded build folder
-      - name: Upload to Google Cloud Storage
-        uses: google-github-actions/upload-cloud-storage@v2
-        with:
-          path: ./build  # Caminho para a pasta build
-          destination: gs://${{ secrets.GCP_BUCKET }}  # Certifique-se de que GCP_BUCKET está correto
-          universe: googleapis.com
-          gzip: true
-          resumable: true
-          parent: true
-          concurrency: 100
-          gcloudignore_path: .gcloudignore
-          process_gcloudignore: true
+          bucket: netflixclone111
+          source: ./build/**
         env:
-          CLOUDSDK_AUTH_CREDENTIAL_FILE_OVERRIDE: /home/runner/work/NetflixClone/NetflixClone/gha-creds-f0da3e2dcedc1e93.json
-          GOOGLE_APPLICATION_CREDENTIALS: /home/runner/work/NetflixClone/NetflixClone/gha-creds-f0da3e2dcedc1e93.json
-          GOOGLE_GHA_CREDS_PATH: /home/runner/work/NetflixClone/NetflixClone/gha-creds-f0da3e2dcedc1e93.json
-          CLOUDSDK_CORE_PROJECT: ${{ secrets.GCP_PROJECT }}
-          CLOUDSDK_PROJECT: ${{ secrets.GCP_PROJECT }}
-          GCLOUD_PROJECT: ${{ secrets.GCP_PROJECT }}
-          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
-          GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT }}
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEYFILE }}
