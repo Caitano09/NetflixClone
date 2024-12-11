@@ -69,4 +69,4 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: ./build  # Upload the folder itself
-          destination: gs://${{ secrets.GCP_BUCKET }}
+          destination: ${{ secrets.GCP_BUCKET }}
