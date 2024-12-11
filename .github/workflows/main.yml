@@ -42,7 +42,7 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           path: './'
-          destination: 'gs://netflixclone111/'
+          destination: 'gs://netflixclone111'
           project_id: 'daniel-web-444219'
           gzip: true
           resumable: true
