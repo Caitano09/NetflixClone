@@ -1,26 +1,45 @@
-# This is a sample build configuration for Docker.
-# Check our guides at https://confluence.atlassian.com/x/O1toN for more examples.
-# Only use spaces to indent your .yml configuration.
-# -----
-# You can specify a custom docker image from Docker Hub as your build environment.
-image: node:23-alpine
+name: CI Pipeline
 
-pipelines:
+on:
+  push:
+    branches:
+      - master
 
-  branches:
-    master:
-      - step:
-          name: 'Install and build'
-          services:
-            - docker
-          script:
-            # Modify the commands below to build your repository.
-            # Set $DOCKER_HUB_USERNAME and $DOCKER_HUB_PASSWORD as environment variables in repository settings
-            - yarn install
-            - yarn build
-            - pipe: atlassian/google-cloud-storage-deploy:1.2.0
-              variables:
-                KEY_FILE: $GCLOUD_API_KEYFILE
-                PROJECT: 'daniel-web-444219'
-                BUCKET: 'netflixclone111'
-                SOURCE: '-r ./build/**'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: node:23-alpine
+
+    steps:
+      # Checkout do código-fonte
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Instalar dependências
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      # Executar build
+      - name: Build project
+        run: |
+          yarn build
+
+      # Persistir a pasta build para ser usada nas próximas etapas
+      - name: Cache build folder
+        uses: actions/cache@v3
+        with:
+          path: ./build
+          key: ${{ runner.os }}-build-${{ hashFiles('**/yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-
+
+      # Deploy para o Google Cloud Storage
+      - name: Deploy to Google Cloud Storage
+        uses: google-github-actions/upload-cloud-storage@v2
+        with:
+          bucket: netflixclone111
+          path: './build/**'  # Garantir que o caminho para a pasta build esteja correto
+        env:
+          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_API_KEYFILE }}
