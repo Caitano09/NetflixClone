@@ -25,10 +25,18 @@ jobs:
       - name: Install Dependencies
         run: yarn install
 
-      # Build the project
       - name: Build Project
-        run: yarn build
+        run: |
+          yarn build
+          echo "The current working directory is: $(pwd)"
+          echo "The absolute path of the build directory is: $(pwd)/build"
 
+  deploy:
+    name: Deploy to Google Cloud Storage
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
       # Checkout the repository
       - name: Checkout Code
         uses: actions/checkout@v3
