@@ -11,7 +11,7 @@ jobs:
     steps:
       # Checkout do código
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Configurar Node.js
       - name: Setup Node.js
@@ -27,30 +27,22 @@ jobs:
       - name: Build the project
         run: yarn build
 
-      # Salvar os artefatos da build
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: build/
-
-      # Baixar os artefatos da build para o ambiente atual
-      - name: Download build artifacts
-        uses: actions/download-artifact@v3
-        with:
-          name: build-artifacts
-
-      # Verificar os arquivos
-      - name: List files in build directory
-        run: ls -la build
+      # Decodificar a chave Base64
+      - name: Decode GCP credentials from Base64
+        run: echo "${{ secrets.GCP_KEYFILE }}" | base64 --decode > gcloud-credentials.json
 
       # Fazer upload para o Google Cloud Storage
       - name: Deploy to Google Cloud Storage
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: 'build/*'
+          path: './build/*'  # Caminho correto
           destination: 'gs://netflixclone111/'
           project_id: 'daniel-web-444219'
+          gzip: true
+          resumable: true
+          parent: true
+          concurrency: 100
+          gcloudignore_path: .gcloudignore
+          process_gcloudignore: false  # Desabilitar o ignore para depuração
         env:
-          GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCP_KEYFILE }}
-
+          GOOGLE_APPLICATION_CREDENTIALS: ./gcloud-credentials.json
