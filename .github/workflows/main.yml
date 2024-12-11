@@ -56,9 +56,9 @@ jobs:
       - name: Set up Cloud SDK
         uses: google-github-actions/setup-gcloud@v1
         with:
-          project_id: ${{ secrets.GCP_PROJECT_ID }}
+          project_id: ${{ secrets.GCP_PROJECT }}
 
       - name: Deploy to GCP
         run: |
-          gsutil -m rsync -r ./build/ gs://netflixclone111/
+          gsutil -m rsync -r ./build/ gs://${{ secrets.GCP_BUCKET }}/
         
