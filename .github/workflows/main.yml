@@ -40,6 +40,7 @@ jobs:
         uses: google-github-actions/upload-cloud-storage@v2
         with:
           bucket: netflixclone111
-          path: './build/**/*'  # Use o caminho correto para os arquivos a serem enviados
+          path: './build/**/*'  # Caminho dos arquivos a serem enviados
+          destination: 'path/to/destination/'  # Defina o caminho de destino no bucket
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCLOUD_API_KEYFILE }}
