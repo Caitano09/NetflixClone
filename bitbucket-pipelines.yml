@@ -20,7 +20,7 @@ pipelines:
             - yarn build
             - pipe: atlassian/google-cloud-storage-deploy:1.2.0
               variables:
-                KEY_FILE: $GCLOUD_API_KEYFILE
+                KEY_FILE: $GCP_KEYFILE
                 PROJECT: 'daniel-web-444219'
                 BUCKET: 'netflixclone111'
                 SOURCE: '-r ./build/**'
