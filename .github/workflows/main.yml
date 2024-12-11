@@ -36,10 +36,7 @@ jobs:
           echo "The absolute path of the build directory is: $(pwd)/build"
 
   deploy:
-    permissions:
-      contents: 'read'
-      id-token: 'write'
-
+    name: Deploy to Google Cloud Storage
     needs: build
     runs-on: ubuntu-latest
 
@@ -59,6 +56,13 @@ jobs:
       - id: 'upload-folder'
         uses: google-github-actions/upload-cloud-storage@v2
         with:
-          path: '/home/runner/work/NetflixClone/NetflixClone/build/'  # Caminho absoluto da pasta build
+          path: './build/'  # Usando caminho relativo
           destination: '${{ secrets.GCP_BUCKET }}'
+          universe: googleapis.com
+          gzip: true
+          resumable: true
+          parent: true
+          concurrency: 100
+          gcloudignore_path: .gcloudignore
+          process_gcloudignore: true
 
